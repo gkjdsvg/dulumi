@@ -9,4 +9,9 @@ public class MapController {
     public String map() {
         return "map";
     }
+
+    @GetMapping("/test/map")
+    public String testMap() {
+        return "testMap";
+    }
 }
