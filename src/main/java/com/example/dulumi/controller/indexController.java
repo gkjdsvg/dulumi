@@ -3,13 +3,10 @@ package com.example.dulumi.controller;
 import com.example.dulumi.Repository.UserRepository;
 import com.example.dulumi.domain.PrincipalDetails;
 import com.example.dulumi.domain.User;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +36,7 @@ public class indexController {
 
         return "세션 정보 확인";
     }
+
     @ResponseBody
     @GetMapping("/test/oauth/login")
     public String testOAuthLogin(Authentication authentication, @AuthenticationPrincipal OAuth2User oauth) {
@@ -85,7 +83,7 @@ public class indexController {
     @PostMapping("/join")
     public String join(@ModelAttribute User user) {
         user.setRole(Role.USER);
-        user.setCreateDate(LocalDateTime.now());
+        user.setCreate_date(LocalDateTime.now());
 
         String rawPassword = user.getPassword();
         String encPassword = passwordEncoder.encode(rawPassword);

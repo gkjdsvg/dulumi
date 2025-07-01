@@ -1,0 +1,7 @@
+{
+    "properties": {
+      "title": { "type": "text" },
+      "content": { "type": "text" },
+      "createdAt": { "type": "date" }
+  }
+}

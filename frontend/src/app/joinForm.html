@@ -381,10 +381,10 @@
   <div class="form-container">
     <form>
       <div class="form-group">
-        <label for="name" class="label">이름</label>
+        <label for="username" class="label">이름</label>
         <input
                 type="text"
-                id="name"
+                id="username"
                 class="input"
                 placeholder="홍길동"
                 required
@@ -397,7 +397,7 @@
                 type="email"
                 id="email"
                 class="input"
-                placeholder="example@email.com"
+                placeholder="example@gsm.hs.kr"
                 required
         />
       </div>
@@ -448,7 +448,7 @@
       </div>
 
       <div class="form-group">
-        <button type="submit" class="button button-primary">회원가입</button>
+        <button type="submit" class="button button-primary" id="signup-button">회원가입</button>
       </div>
 
       <div class="social-login">
@@ -471,7 +471,7 @@
       </div>
 
       <div class="divider">
-        이미 계정이 있으신가요? <a href="login.html" class="login-link">로그인</a>
+        이미 계정이 있으신가요? <a href="/loginForm" class="login-link">로그인</a>
       </div>
     </form>
   </div>
@@ -497,6 +497,41 @@
                 `;
     }
   }
+
+  document.getElementById("signup-button").addEventListener("click", function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const username = document.getElementById("username").value;
+
+    const data = {
+      email: email,
+      password: password,
+      username: username
+    };
+
+    fetch("/joinForm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+            .then(response => {
+              if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+              }
+              return response.json().catch(() => null); // JSON 아니면 null
+            })
+            .then(() => {
+              alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+              window.location.href = "/loginForm";
+            })
+            .catch(error => {
+              alert("회원가입 실패: " + error.message);
+            });
+  });
 
   function signupWithGoogle() {
     location.href = '/oauth2/authorization/google';

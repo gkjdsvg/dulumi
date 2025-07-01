@@ -8,6 +8,10 @@ import com.example.dulumi.info.GoogleUserInfo;
 import com.example.dulumi.info.KakaoUserInfo;
 import com.example.dulumi.info.OAuth2UserInfo;
 
+import com.example.dulumi.info.emailUserInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,15 +24,18 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
-
+@Slf4j
 public class PrincipalOauthUserService extends DefaultOAuth2UserService {
     @Autowired
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(PrincipalOauthUserService.class);
 
     public PrincipalOauthUserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -61,17 +68,19 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
 //        else if(userRequest.getClientRegistration().getRegistrationId().equals("facebook")) {
 //            oAuth2UserInfo = new FacebookUserInfo(oAuth2User.getAttributes());
 //        }
-//        else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")) {
-//            oAuth2UserInfo = new NaverUserInfo((Map)oAuth2User.getAttributes().get("response"));
-//        }
+//
         else if(userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
             oAuth2UserInfo = new KakaoUserInfo((Map)oAuth2User.getAttributes().get("kakao_account"),
                     String.valueOf(oAuth2User.getAttributes().get("id")));
         }
-        else{
-            System.out.println("지원하지 않은 로그인 서비스 입니다.");
+        else if(userRequest.getClientRegistration().getRegistrationId().equals("email")) {
+            oAuth2UserInfo = new emailUserInfo(oAuth2User.getAttributes());
+        }
+        else {
+            System.out.println("지원하지 않는 로그인입니다.");
         }
 
+        assert oAuth2UserInfo != null;
         String provider = oAuth2UserInfo.getProvider(); //google , naver, facebook etc
         String providerId = oAuth2UserInfo.getProviderId();
         String username = provider + "_" + providerId;
@@ -79,7 +88,8 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
         String email = oAuth2UserInfo.getEmail();
         Role role = Role.USER;
 
-        User userEntity = userRepository.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        User userEntity = optionalUser.orElse(null);
         //처음 서비스를 이용한 회원일 경우
         if(userEntity == null) {
             LocalDateTime createTime = LocalDateTime.now();
@@ -89,12 +99,14 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
                     .email(email)
                     .role(role)
                     .provider(provider)
-                    .provideId(providerId)
-                    .createDate(createTime)
+                    .provider_id(providerId)
+                    .create_date(createTime)
                     .build();
 
             userRepository.save(userEntity);
         }
+        System.out.println("✅ 로그인 성공 직전, 유저 정보: " + userEntity.getUsername());
+        logger.info("✅ 구글 attributes: {}", oAuth2User.getAttributes());
 
         return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
     }
