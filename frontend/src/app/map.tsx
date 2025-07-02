@@ -1,235 +1,281 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import {
+    MapPin,
+    Search,
+    Filter,
+    Star,
+    Clock,
+    ChevronDown,
+    ChevronUp,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Home, FileText, CheckSquare, Plus, User, UserPlus } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect, useRef } from "react"
 
-export default function NotionHomepage() {
-    const [activeSection, setActiveSection] = useState("home")
-    const [newNote, setNewNote] = useState("")
-    const [newTask, setNewTask] = useState("")
-    const [notes, setNotes] = useState(["Welcome to your workspace", "Start writing your ideas here"])
-    const [tasks, setTasks] = useState([
-        { text: "Learn HTML & CSS", done: true },
-        { text: "Build a Notion Clone", done: false },
-        { text: "Explore JavaScript", done: false },
-    ])
+// 타입 정의 추가
+interface Place {
+    id: number
+    name: string
+    category: string
+    rating: number
+    distance: string
+    status: string
+    hours: string
+    phone: string
+    discount: string
+    position: { top: string; left: string }
+}
 
-    const addNote = () => {
-        if (newNote.trim()) {
-            setNotes([...notes, newNote])
-            setNewNote("")
+export default function Component() {
+    const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
+    const [sidebarOpen, setSidebarOpen] = useState(true)
+
+    const mapRef = useRef<HTMLDivElement>(null)
+    const kakaoMapRef = useRef<any>(null) // 카카오 지도 객체 저장
+
+    const places: Place[] = [
+        {
+            id: 1,
+            name: "스타벅스 대학로점",
+            category: "카페",
+            rating: 4.5,
+            distance: "50m",
+            status: "영업중",
+            hours: "07:00 - 22:00",
+            phone: "02-1234-5678",
+            discount: "학생 10% 할인",
+            position: { top: "20%", left: "30%" },
+        },
+        {
+            id: 2,
+            name: "맘스터치 캠퍼스점",
+            category: "음식점",
+            rating: 4.2,
+            distance: "120m",
+            status: "영업중",
+            hours: "10:00 - 23:00",
+            phone: "02-2345-6789",
+            discount: "학생 15% 할인",
+            position: { top: "40%", left: "60%" },
+        },
+        {
+            id: 3,
+            name: "CU 편의점",
+            category: "편의점",
+            rating: 4.0,
+            distance: "80m",
+            status: "24시간",
+            hours: "24시간 운영",
+            phone: "02-3456-7890",
+            discount: "학생 5% 할인",
+            position: { top: "60%", left: "25%" },
+        },
+        {
+            id: 4,
+            name: "중앙도서관",
+            category: "도서관",
+            rating: 4.8,
+            distance: "200m",
+            status: "개방중",
+            hours: "09:00 - 22:00",
+            phone: "02-4567-8901",
+            discount: "무료 이용",
+            position: { top: "30%", left: "70%" },
+        },
+    ]
+
+    useEffect(() => {
+        const script = document.createElement("script")
+        script.src = "/kakaoMap.js"
+        script.async = true
+        script.onload = () => {
+            // @ts-ignore
+            window.loadKakaoMap("kakao-map")
         }
-    }
-
-    const addTask = () => {
-        if (newTask.trim()) {
-            setTasks([...tasks, { text: newTask, done: false }])
-            setNewTask("")
-        }
-    }
-
-    const toggleTask = (index: number) => {
-        const updatedTasks = [...tasks]
-        updatedTasks[index].done = !updatedTasks[index].done
-        setTasks(updatedTasks)
-    }
+        document.body.appendChild(script)
+    }, [])
 
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
-            <header className="border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center justify-between max-w-6xl mx-auto">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">N</span>
+            <header className="px-6 py-6 border-b border-white relative z-50">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-[#DCD3FF] rounded-2xl flex items-center justify-center">
+                                <MapPin className="w-6 h-6 text-black" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-black">CampusMap</h1>
                         </div>
-                        <span className="text-xl font-semibold">My Notion</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="sm">
-                            <User className="w-4 h-4 mr-2" />
-                            로그인
-                        </Button>
-                        <Button size="sm" className="bg-black hover:bg-gray-800">
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            회원가입
-                        </Button>
+                        <div className="flex items-center space-x-4">
+                            <Button variant="ghost" className="text-black hover:text-black hover:bg-white">
+                                서비스 소개
+                            </Button>
+                            <Button variant="ghost" className="text-black hover:text-black hover:bg-white">
+                                공지사항
+                            </Button>
+                            <Button className="bg-[#DCD3FF] text-black hover:bg-white hover:border-[#DCD3FF] border border-transparent">
+                                로그인
+                            </Button>
+                            <Button className="bg-[#DCD3FF] text-black hover:bg-white hover:border-[#DCD3FF] border border-transparent">
+                                회원가입
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <div className="flex max-w-6xl mx-auto">
+            <div className="flex h-screen">
                 {/* Sidebar */}
-                <aside className="w-64 p-6 border-r border-gray-200 min-h-screen">
-                    <nav className="space-y-1">
-                        <button
-                            onClick={() => setActiveSection("home")}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
-                                activeSection === "home" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
-                            }`}
-                        >
-                            <Home className="w-4 h-4" />
-                            Home
-                        </button>
-                        <button
-                            onClick={() => setActiveSection("notes")}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
-                                activeSection === "notes" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
-                            }`}
-                        >
-                            <FileText className="w-4 h-4" />
-                            Notes
-                        </button>
-                        <button
-                            onClick={() => setActiveSection("tasks")}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
-                                activeSection === "tasks" ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-50"
-                            }`}
-                        >
-                            <CheckSquare className="w-4 h-4" />
-                            Tasks
-                        </button>
-                    </nav>
-                </aside>
-
-                {/* Main Content */}
-                <main className="flex-1 p-8">
-                    {activeSection === "home" && (
-                        <div className="space-y-8">
-                            <div>
-                                <h1 className="text-3xl font-bold mb-2">Welcome to Notion Clone</h1>
-                                <p className="text-gray-600">Organize your thoughts and tasks in one place.</p>
+                <div
+                    className={`${sidebarOpen ? "w-96" : "w-0"} transition-all duration-300 bg-white border-r border-[#DCD3FF] overflow-hidden relative z-40`}
+                >
+                    <div className="p-6 h-full overflow-y-auto">
+                        {/* Search Section */}
+                        <div className="mb-6">
+                            <div className="relative mb-4">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
+                                <Input
+                                    placeholder="장소를 검색하세요..."
+                                    className="pl-10 h-12 bg-white border-[#DCD3FF] focus:border-[#C8A2C8] text-black rounded-xl"
+                                />
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {/* Notes Preview */}
-                                <Card className="border border-gray-200">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <FileText className="w-5 h-5" />
-                                            <h2 className="text-lg font-semibold">📝 Notes</h2>
-                                        </div>
-                                        <div className="space-y-2">
-                                            {notes.slice(0, 3).map((note, index) => (
-                                                <p key={index} className="text-gray-700 text-sm">
-                                                    • {note}
-                                                </p>
-                                            ))}
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="mt-4 text-blue-600 hover:text-blue-700"
-                                            onClick={() => setActiveSection("notes")}
-                                        >
-                                            View all notes →
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                            {/* Filter Buttons */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <Button className="bg-[#C8A2C8] text-black hover:bg-white hover:border-[#C8A2C8] border border-transparent px-4 py-2 text-sm rounded-lg transition-all">
+                                    전체
+                                </Button>
+                                <Button className="bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black px-4 py-2 text-sm rounded-lg transition-all">
+                                    카페
+                                </Button>
+                                <Button className="bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black px-4 py-2 text-sm rounded-lg transition-all">
+                                    음식점
+                                </Button>
+                                <Button className="bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black px-4 py-2 text-sm rounded-lg transition-all">
+                                    편의점
+                                </Button>
+                                <Button className="bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black px-4 py-2 text-sm rounded-lg transition-all">
+                                    도서관
+                                </Button>
+                            </div>
 
-                                {/* Tasks Preview */}
-                                <Card className="border border-gray-200">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <CheckSquare className="w-5 h-5" />
-                                            <h2 className="text-lg font-semibold">📌 To-Do List</h2>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {tasks.slice(0, 3).map((task, index) => (
-                                                <div key={index} className="flex items-center gap-2">
-                                                    <Checkbox checked={task.done} className="w-4 h-4" />
-                                                    <span className={`text-sm ${task.done ? "line-through text-gray-500" : "text-gray-700"}`}>
-                            {task.text}
-                          </span>
+                            <Button className="w-full bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black h-10 rounded-xl transition-all">
+                                <Filter className="w-4 h-4 mr-2" />
+                                상세 필터
+                            </Button>
+                        </div>
+
+                        {/* Places List */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-bold text-black mb-4">주변 장소</h3>
+                            {places.map((place) => (
+                                <Card
+                                    key={place.id}
+                                    className={`border cursor-pointer transition-all duration-300 ${
+                                        selectedPlace?.id === place.id
+                                            ? "border-[#C8A2C8] shadow-lg"
+                                            : "border-[#DCD3FF] hover:border-[#C8A2C8]"
+                                    }`}
+                                    onClick={() => setSelectedPlace(place)}
+                                >
+                                    <CardContent className="p-4">
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div>
+                                                <h4 className="font-bold text-black text-sm">{place.name}</h4>
+                                                <div className="flex items-center space-x-2 mt-1">
+                                                    <Badge className="bg-[#DCD3FF] text-black px-2 py-1 text-xs rounded-lg hover:bg-white hover:border-[#DCD3FF] border border-transparent transition-all">
+                                                        {place.category}
+                                                    </Badge>
+                                                    <span className="text-xs text-black">{place.distance}</span>
                                                 </div>
-                                            ))}
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Star className="w-3 h-3 text-[#C8A2C8] fill-current" />
+                                                <span className="text-xs text-black">{place.rating}</span>
+                                            </div>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="mt-4 text-blue-600 hover:text-blue-700"
-                                            onClick={() => setActiveSection("tasks")}
-                                        >
-                                            View all tasks →
-                                        </Button>
+
+                                        <div className="flex items-center space-x-4 text-xs text-black mb-2">
+                                            <div className="flex items-center space-x-1">
+                                                <div
+                                                    className={`w-2 h-2 rounded-full ${
+                                                        place.status === "영업중" || place.status === "개방중" || place.status === "24시간"
+                                                            ? "bg-[#C8A2C8]"
+                                                            : "bg-[#DCD3FF]"
+                                                    }`}
+                                                ></div>
+                                                <span>{place.status}</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Clock className="w-3 h-3 text-[#C8A2C8]" />
+                                                <span>{place.hours}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-xs text-black">
+                                            <span className="text-[#C8A2C8] font-medium">{place.discount}</span>
+                                        </div>
                                     </CardContent>
                                 </Card>
-                            </div>
+                            ))}
                         </div>
-                    )}
+                    </div>
+                </div>
 
-                    {activeSection === "notes" && (
-                        <div className="space-y-6">
-                            <div>
-                                <h1 className="text-2xl font-bold mb-4">📝 Notes</h1>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="Write a new note..."
-                                        value={newNote}
-                                        onChange={(e) => setNewNote(e.target.value)}
-                                        onKeyPress={(e) => e.key === "Enter" && addNote()}
-                                        className="flex-1"
-                                    />
-                                    <Button onClick={addNote}>
-                                        <Plus className="w-4 h-4 mr-2" />
-                                        Add
-                                    </Button>
-                                </div>
-                            </div>
+                {/* Sidebar Toggle Button - 사이드바 경계에 붙이기 */}
+                <Button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className={`fixed top-1/2 transform -translate-y-1/2 z-50 bg-[#DCD3FF] hover:bg-white hover:border-[#DCD3FF] border border-transparent text-black w-6 h-16 transition-all shadow-lg ${
+                        sidebarOpen ? "left-96 rounded-r-xl border-l-0" : "left-0 rounded-r-xl"
+                    }`}
+                >
+                    {sidebarOpen ? <ChevronUp className="w-4 h-4 rotate-90" /> : <ChevronDown className="w-4 h-4 -rotate-90" />}
+                </Button>
 
-                            <div className="space-y-3">
-                                {notes.map((note, index) => (
-                                    <Card key={index} className="border border-gray-200">
-                                        <CardContent className="p-4">
-                                            <p className="text-gray-700">{note}</p>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                {/* Map Section */}
+                <div className="flex-1 relative bg-white">
+                    {/* Map Container - 카카오 지도 렌더링 위치 */}
+                    <div
+                        ref={mapRef}
+                        className="w-full h-full"
+                        style={{ minHeight: "600px", position: "relative" }}
+                    ></div>
 
-                    {activeSection === "tasks" && (
-                        <div className="space-y-6">
-                            <div>
-                                <h1 className="text-2xl font-bold mb-4">📌 Tasks</h1>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="Add a new task..."
-                                        value={newTask}
-                                        onChange={(e) => setNewTask(e.target.value)}
-                                        onKeyPress={(e) => e.key === "Enter" && addTask()}
-                                        className="flex-1"
-                                    />
-                                    <Button onClick={addTask}>
-                                        <Plus className="w-4 h-4 mr-2" />
-                                        Add
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                {tasks.map((task, index) => (
-                                    <Card key={index} className="border border-gray-200">
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <Checkbox checked={task.done} onCheckedChange={() => toggleTask(index)} />
-                                                <span className={`${task.done ? "line-through text-gray-500" : "text-gray-700"}`}>
-                          {task.text}
-                        </span>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </main>
+                    {/* 기존에 있던 지도 스타일 & 위치핀, 기타 UI는 필요없으니 제거했습니다. */}
+                </div>
             </div>
+
+            {/* Footer */}
+            <footer className="px-6 py-12 bg-black">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-[#DCD3FF] rounded-xl flex items-center justify-center">
+                                <MapPin className="w-5 h-5 text-black" />
+                            </div>
+                            <span className="text-xl font-bold text-white">CampusMap</span>
+                        </div>
+                        <div className="flex items-center space-x-8">
+                            <a href="#" className="text-white hover:text-[#DCD3FF] transition-colors">
+                                서비스 소개
+                            </a>
+                            <a href="#" className="text-white hover:text-[#DCD3FF] transition-colors">
+                                공지사항
+                            </a>
+                            <a href="#" className="text-white hover:text-[#DCD3FF] transition-colors">
+                                고객지원
+                            </a>
+                        </div>
+                    </div>
+                    <div className="mt-8 pt-8 border-t border-white text-center">
+                        <p className="text-white">© 2024 CampusMap. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     )
 }
