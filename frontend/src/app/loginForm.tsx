@@ -2,7 +2,7 @@
 
 import {ReactElement, useState} from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react"
+import { MapPin, Eye, EyeOff, Mail, Lock, User} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,7 +30,8 @@ export default function Component() {
             if (!response.ok) throw new Error(await response.text())
             alert("로그인 성공! 홈페이지로 이동합니다.")
             router.push("/main")
-        } catch (err: any) {
+        } catch (err: unknown) {
+            // @ts-expect-error: 로그인 실패 시
             alert("로그인 실패: " + err.message)
         }
     }
@@ -51,7 +52,8 @@ export default function Component() {
             if (!response.ok) throw new Error(await response.text())
             alert("회원가입 성공! 로그인 페이지로 이동합니다.")
             router.push("/loginForm")
-        } catch (err: any) {
+        } catch (err: unknown) {
+            // @ts-expect-error: 회원 가입 실패 시
             alert("회원가입 실패: " + err.message)
         }
     }

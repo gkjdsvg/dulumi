@@ -15,6 +15,12 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { useState, useEffect, useRef } from "react"
 
+declare global {
+    interface Window {
+        loadKakaoMap: (mapContainerId: string) => void;
+    }
+}
+
 // 타입 정의 추가
 interface Place {
     id: number
@@ -34,7 +40,7 @@ export default function Component() {
     const [sidebarOpen, setSidebarOpen] = useState(true)
 
     const mapRef = useRef<HTMLDivElement>(null)
-    const kakaoMapRef = useRef<any>(null) // 카카오 지도 객체 저장
+    // const kakaoMapRef = useRef(null) // 카카오 지도 객체 저장
 
     const places: Place[] = [
         {
@@ -89,12 +95,15 @@ export default function Component() {
 
     useEffect(() => {
         const script = document.createElement("script")
-        script.src = "/kakaoMap.js"
+        script.src = "/mapAPI.js"
         script.async = true
         script.onload = () => {
-            // @ts-ignore
-            window.loadKakaoMap("kakao-map")
-        }
+            if (typeof window.loadKakaoMap === "function") {
+                window.loadKakaoMap("kakao-map");
+            } else {
+                console.error("loadKakaoMap 함수가 window에 없습니다.");
+            }
+        };
         document.body.appendChild(script)
     }, [])
 
