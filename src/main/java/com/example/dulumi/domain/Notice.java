@@ -22,6 +22,9 @@ public class Notice {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "author")
+    private String author;
+
     @Column(name = "date")
     private LocalDateTime date;
 }

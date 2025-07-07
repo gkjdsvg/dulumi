@@ -1,21 +1,16 @@
 package com.example.dulumi.DTO;
 
-import com.example.dulumi.domain.Announcement;
-import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 
-@Data
 public class AnnouncementDto {
+    private String entity;
     private String title;
-    private String content;
-
-    public Announcement toEntity() {
-        return Announcement.builder()
-                .title(title)
-                .content(content)
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
 }

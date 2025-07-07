@@ -3,24 +3,26 @@ package com.example.dulumi.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.springframework.stereotype.Service;
-
-import javax.naming.directory.SearchResult;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 @Service
-@RequiredArgsConstructor
 public class TitleSearchService {
     private final NoticeSearchRepository noticeSearchRepository;
     private final ElasticsearchClient elasticsearchClient;
+
+    public TitleSearchService(NoticeSearchRepository noticeSearchRepository, ElasticsearchClient elasticsearchClient) {
+        this.noticeSearchRepository = noticeSearchRepository;
+        this.elasticsearchClient = elasticsearchClient;
+    }
 
     public ElasticEntity createNotice(ElasticEntity elasticEntity) {
         return noticeSearchRepository.save(elasticEntity);
@@ -43,13 +45,26 @@ public class TitleSearchService {
                     elasticsearchClient.search(request, ElasticEntity.class);
 
             return response.hits().hits().stream()
-                    .map(hit -> hit.source())
+                    .peek(hit -> System.out.println("📦 source 확인: " + hit.source()))
+                    .map(Hit::source)
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException("엘라스틱 검색 중 오류 발생");
+            e.printStackTrace();
+            throw new RuntimeException("엘라스틱 검색 중 오류 발생", e);
         }
-
     }
+
+    public void saveToElastic(String content, String author) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
+        ElasticEntity elastic = new  ElasticEntity();
+        elastic.setId(UUID.randomUUID().toString());
+        elastic.setContent(content);
+        elastic.setCreatedDate(Instant.now());
+        elastic.setAuthor(author);
+
+        noticeSearchRepository.save(elastic);
+    }
+
 
     public void printAllContents() {
         Iterable<ElasticEntity> allIterable = noticeSearchRepository.findAll();
