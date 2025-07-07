@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class viewController {
     @GetMapping("/main")
     public String home() {
-        return "main";
+        return "redirect:/main/main.html";
     }
 
     @GetMapping("/notice")

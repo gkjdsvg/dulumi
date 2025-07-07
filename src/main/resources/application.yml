@@ -46,12 +46,9 @@ spring:
 
   data:
     elasticsearch:
-      repositories:
-        enabled: true
-      rest:
-        uris: http://localhost:9200
-      indexes:
-        create: false
+      uris: http://localhost:9200
+      username: elastic
+
 jwt:
   secret: qL7bb6BWfXxgf6A9IqfuoQ0zmx9bgYRpdw7J6pDg
   access_token_expire_time: 1800000

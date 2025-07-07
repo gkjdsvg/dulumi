@@ -2,6 +2,7 @@ package com.example.dulumi.elasticsearch;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,8 +14,9 @@ public class NoticeSearchController {
     private final  TitleSearchService titleSearchService;
 
     @GetMapping
-    public ApiResponse<List<ElasticEntity>> search(@RequestParam("keyword") String keyword) {
-        return ApiResponse.onSuccess(titleSearchService.getTitle(keyword));
+    public ResponseEntity<List<ElasticEntity>> search(@RequestParam("keyword") String keyword) {
+        List<ElasticEntity> results = titleSearchService.getContent(keyword);
+        return ResponseEntity.ok().body(results);
     }
 
     @PostMapping
@@ -22,4 +24,10 @@ public class NoticeSearchController {
         ElasticEntity saved = titleSearchService.createNotice(elasticEntity);
         return ApiResponse.onSuccess(saved);
     }
+
+    @PostMapping("/check")
+    public void check() {
+        titleSearchService.printAllContents();
+    }
+
 }

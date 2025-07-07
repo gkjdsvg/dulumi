@@ -5,5 +5,5 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import java.util.List;
 
 public interface NoticeSearchRepository extends ElasticsearchRepository<ElasticEntity, Long> {
-    List<ElasticEntity> findByTitle(String keyword);
+    List<ElasticEntity> findByContent(String keyword);
 }
