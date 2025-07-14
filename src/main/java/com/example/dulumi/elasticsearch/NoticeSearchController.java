@@ -15,7 +15,7 @@ public class NoticeSearchController {
 
     @GetMapping
     public ResponseEntity<List<ElasticEntity>> search(@RequestParam("keyword") String keyword) {
-        List<ElasticEntity> results = titleSearchService.getContent(keyword);
+        List<ElasticEntity> results = titleSearchService.search(keyword);
         return ResponseEntity.ok().body(results);
     }
 

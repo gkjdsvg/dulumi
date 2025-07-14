@@ -1,8 +1,12 @@
 package com.example.dulumi.config;
 
+import com.example.dulumi.Repository.UserRepository;
+import com.example.dulumi.config.JWT.JwtAuthenticationFilter;
+import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.config.auth.AuthSuccessHandler;
 import com.example.dulumi.service.PrincipalOauthUserService;
 import com.example.dulumi.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,18 +15,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final PrincipalOauthUserService principalOauthUserService;
     private final AuthSuccessHandler authSuccessHandler;
-    private final UserService userService;
+    private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(PrincipalOauthUserService principalOauthUserService, AuthSuccessHandler authSuccessHandler, UserService userService) {
+    public SecurityConfig(PrincipalOauthUserService principalOauthUserService, AuthSuccessHandler authSuccessHandler, JwtProvider jwtProvider, UserRepository userRepository) {
         this.principalOauthUserService = principalOauthUserService;
         this.authSuccessHandler = authSuccessHandler;
-        this.userService = userService;
+        this.jwtProvider = jwtProvider;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -43,12 +50,14 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**", "/oauth2/**", "/login/oauth2/**","/joinForm").permitAll()
+                        .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api","login-api").permitAll()
                         .requestMatchers("/user/**").authenticated()
                         .requestMatchers("/manager/**").hasAuthority("MANAGER")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/notification/subscribe").authenticated()
+                        .anyRequest().authenticated()
                 )
+                .addFilterBefore(new JwtAuthenticationFilter(userRepository, jwtProvider), UsernamePasswordAuthenticationFilter.class)
 
                 .formLogin((fromLogin) ->
                         fromLogin
@@ -64,7 +73,11 @@ public class SecurityConfig {
                                 .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                         .userService(principalOauthUserService)//구글 로그인이 완료된(구글회원) 뒤의 후처리가 필요함 . Tip.코드x, (엑세스 토큰+사용자 프로필 정보를 받아옴)
                                 )
-                );
+                )
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint((request, response, authExcpetion) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        }));
 
         return http.build();
     }

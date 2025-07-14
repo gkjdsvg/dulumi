@@ -1,8 +1,11 @@
 package com.example.dulumi.config.JWT;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,20 +15,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 
-
+@Component
 public class JwtProvider {
     private final Key key;
     private static final Logger log = LoggerFactory.getLogger(JwtProvider.class);
 
     // application.yml에서 secret 값 가져와서 key에 저장
     public JwtProvider(@Value("${jwt.secret}") String secretKey) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -81,5 +86,30 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public String resolveToken(HttpServletRequest req) {
+        String bearerToken = req.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public static String createAccessToken(com.example.dulumi.domain.User user) {
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withClaim("id", user.getId())
+                .withClaim("username", user.getUsername())
+                .sign(Algorithm.HMAC256(JwtProperties.SECRET));
+
+    }
+
+    public static String createRefreshToken(com.example.dulumi.domain.User user, String AccessToken) {
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withClaim("AccessToken", AccessToken)
+                .withClaim("username", user.getUsername())
+                .sign(Algorithm.HMAC256(JwtProperties.SECRET));
     }
 }

@@ -13,6 +13,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,14 +29,17 @@ import java.io.IOException;
 import java.util.Objects;
 
 import com.auth0.jwt.JWT;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
+@AllArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
-        super(authenticationManager);
-        this.userRepository = userRepository;
-    }
+//    public JwtAuthenticationFilter(UserRepository userRepository, JwtProvider jwtProvider) {
+//        this.userRepository = userRepository;
+//        this.jwtProvider = jwtProvider;
+//    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse  response, FilterChain chain) throws IOException, ServletException {
@@ -42,6 +47,18 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         String refresh_token = request.getHeader("REFRESH_TOKEN");
         String username = null;
         String restoreAccessToken = null;
+        String token = jwtProvider.resolveToken(request);
+        String header = request.getHeader("Authorization");
+
+        if(header == null || !header.startsWith("Bearer ")) {
+            doFilter(request, response,  chain);
+            return;
+        }
+
+        if (token != null && jwtProvider.validateToken(token)) {
+            Authentication auth = jwtProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
 
         try {
             username = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET))
@@ -56,6 +73,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                     .getClaim("AccessToken")
                     .asString();
         } catch (TokenExpiredException e) {
+
             String restoreUsername = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET))
                     .build()
                     .verify(refresh_token)
@@ -64,8 +82,8 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
             if (restoreUsername != null && Objects.equals(restoreAccessToken, access_token)) {
                 User user = userRepository.findByUsername(restoreUsername)
                         .orElseThrow(() -> new UsernameNotFoundException("username not found"));
-                String accessToken = CreateJwt.createAccessToken(user);
-                String refreshToken = CreateJwt.createRefreshToken(user, accessToken);
+                String accessToken = JwtProvider.createAccessToken(user);
+                String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
 
                 response.setHeader("ACCESS_TOKEN", accessToken);
                 response.setHeader("REFRESH_TOKEN", refreshToken);

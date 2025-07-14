@@ -10,10 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,8 +37,7 @@ public class ElasticEntity {
     private String author;
 
     @Field(type = FieldType.Date)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    private Instant createdDate;
+    private LocalDate createdDate;
 
     @Field(type = FieldType.Keyword)
     @Nullable

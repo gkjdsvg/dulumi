@@ -50,7 +50,7 @@ spring:
       username: elastic
 
 jwt:
-  secret: qL7bb6BWfXxgf6A9IqfuoQ0zmx9bgYRpdw7J6pDg
+  secret: HZwx7wgZ071R2n0sQB1dzdSvSwaXUjQFVfmyodvd
   access_token_expire_time: 1800000
 
 

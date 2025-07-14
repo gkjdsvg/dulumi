@@ -22,13 +22,19 @@ export default function Component() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await fetch("/loginForm", {
+            const response = await fetch("/loginForm ", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             })
-            if (!response.ok) throw new Error(await response.text())
+            if (!response.ok) throw new Error("로그인 실패");
             alert("로그인 성공! 홈페이지로 이동합니다.")
+
+            const data = await response.json();
+
+            localStorage.setItem("access_token", data.accessToken);
+            localStorage.setItem("refresh_token", data.refreshToken);
+
             router.push("/main")
         } catch (err: unknown) {
             // @ts-expect-error: 로그인 실패 시

@@ -9,6 +9,8 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -54,12 +56,16 @@ public class TitleSearchService {
         }
     }
 
+    public List<ElasticEntity> search(String keyword) {
+        return noticeSearchRepository.findByContent(keyword);
+    }
+
     public void saveToElastic(String content, String author) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
         ElasticEntity elastic = new  ElasticEntity();
         elastic.setId(UUID.randomUUID().toString());
         elastic.setContent(content);
-        elastic.setCreatedDate(Instant.now());
+        elastic.setCreatedDate(LocalDate.now());
         elastic.setAuthor(author);
 
         noticeSearchRepository.save(elastic);

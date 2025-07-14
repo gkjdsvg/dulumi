@@ -2,8 +2,8 @@ package com.example.dulumi.controller;
 
 import com.example.dulumi.DTO.AddUserRequest;
 import com.example.dulumi.DTO.jwtDto;
-import com.example.dulumi.config.JWT.CreateJwt;
 import com.example.dulumi.config.JWT.JWTUtil;
+import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.domain.User;
 import com.example.dulumi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +23,7 @@ public class UserApiController {
     public UserApiController(UserService userService, JWTUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+
     }
 
     @PostMapping("/loginForm")
@@ -58,8 +59,8 @@ public class UserApiController {
     public ResponseEntity<jwtDto> signup_api(@RequestBody AddUserRequest request) {
         User user = userService.signup(request);
 
-        String accessToken = CreateJwt.createAccessToken(user);
-        String refreshToken = CreateJwt.createRefreshToken(user, accessToken);
+        String accessToken = JwtProvider.createAccessToken(user);
+        String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
 
         return  ResponseEntity.ok(new jwtDto("Bearer", accessToken, refreshToken));
     }
