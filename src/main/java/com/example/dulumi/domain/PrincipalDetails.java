@@ -2,13 +2,11 @@ package com.example.dulumi.domain;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class PrincipalDetails implements UserDetails, OAuth2User{
@@ -24,7 +22,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User{
     //OAuth 로그인 생성자
     public PrincipalDetails(User user, Map<String, Object> attributes ) {
         this.user = user;
-        this.attributes = attributes;
     }
 
     /**
@@ -43,15 +40,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User{
     // SecurityFilterChain에서 권한을 체크할 때 사용됨
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList();
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-
-                return String.valueOf(user.getRole());
-            }
-        });
-        return collection;
+        return List.of(new SimpleGrantedAuthority("USER"));
     }
 
     @Override
@@ -81,9 +70,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User{
 
     @Override
     public boolean isEnabled() {
-        //우리사이트!! 1년 동안 사용하지 않으면 휴면 계정으로 바꾼다.
-        // 현재 시간 - 마지막 로그인 시간 => 1년을 초기하면 return false로 바꾼다.
-        // 이러한 로직을 여기 넣는다.
+
         return true;
     }
 

@@ -1,41 +1,52 @@
 package com.example.dulumi.config.auth;
 
+import com.example.dulumi.DTO.JwtDto;
+import com.example.dulumi.DTO.LoginResponse;
+import com.example.dulumi.DTO.ResponseDTO;
+import com.example.dulumi.config.JWT.JwtProvider;
+import com.example.dulumi.domain.PrincipalDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
-@Slf4j
-@Configuration
+@RequiredArgsConstructor
 @Component
-public class AuthSuccessHandler implements AuthenticationSuccessHandler {
+public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        //oauth2 로그인이 성공 했을 때의 추가 작업 수행
+        //여기서는 JWT 발급하고 형식에 맞게 리턴
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        String token = JwtProvider.createAccessToken(principal.getUser());
 
-        Object principal = authentication.getPrincipal();
+        LoginResponse loginResponse = new LoginResponse(
+                principal.getUser().getEmail(),
+                principal.getUser().getUsername(),
+                token
+        );
 
-        if (principal instanceof UserDetails userDetails) {
-            System.out.println("✅ 폼 로그인 성공: " + userDetails.getUsername());
+        ResponseDTO<LoginResponse> responseDto = ResponseDTO.res(
+                HttpServletResponse.SC_OK,
+                "Login successful",
+                loginResponse
+        );
 
-        } else if (principal instanceof OAuth2User oauthUser) {
-            System.out.println("✅ 구글 로그인 성공: " + oauthUser.getAttributes());
-        } else {
-            System.out.println("⚠️ 알 수 없는 로그인 방식");
-        }
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResponse = mapper.writeValueAsString(responseDto);
 
-        // 로그인 후 리다이렉트
-        response.sendRedirect("/main");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
     }
 }

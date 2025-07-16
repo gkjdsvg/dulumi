@@ -88,6 +88,8 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
         String email = oAuth2UserInfo.getEmail();
         Role role = Role.USER;
 
+        Optional<User> user = userRepository.findByUsername(username);
+
         Optional<User> optionalUser = userRepository.findByUsername(username);
         User userEntity = optionalUser.orElse(null);
         //처음 서비스를 이용한 회원일 경우
@@ -104,11 +106,11 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
                     .build();
 
             userRepository.save(userEntity);
+            return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
         }
-        System.out.println("✅ 로그인 성공 직전, 유저 정보: " + userEntity.getUsername());
-        logger.info("✅ 구글 attributes: {}", oAuth2User.getAttributes());
-
-        return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
+        else {
+            return new PrincipalDetails(user.get(), oAuth2User.getAttributes());
+        }
     }
 }
 

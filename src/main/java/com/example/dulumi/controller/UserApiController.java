@@ -1,7 +1,8 @@
 package com.example.dulumi.controller;
 
+import com.auth0.jwt.JWT;
 import com.example.dulumi.DTO.AddUserRequest;
-import com.example.dulumi.DTO.jwtDto;
+import com.example.dulumi.DTO.JwtDto;
 import com.example.dulumi.config.JWT.JWTUtil;
 import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.domain.User;
@@ -13,6 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @ResponseBody
@@ -47,21 +51,29 @@ public class UserApiController {
     }
 
     @PostMapping("/login-api")
-    public ResponseEntity<jwtDto> loginForm(@RequestBody AddUserRequest addUserRequest) {
+    public ResponseEntity<Map<String, String>> loginForm(@RequestBody AddUserRequest addUserRequest) {
         User user = userService.login(addUserRequest);
+        String accessToken = JwtProvider.createAccessToken(user);
+        String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
 
-        jwtDto token = jwtUtil.generateToken(user.getId());
+        System.out.println("== 디버깅용 JWT ==");
+        System.out.println("Access Token = " + accessToken);
+        System.out.println("Decoded Role = " + JWT.decode(accessToken).getClaim("role").asString());
 
-        return ResponseEntity.ok(token);
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+
+        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/signup-api")
-    public ResponseEntity<jwtDto> signup_api(@RequestBody AddUserRequest request) {
+    public ResponseEntity<JwtDto> signup_api(@RequestBody AddUserRequest request) {
         User user = userService.signup(request);
 
         String accessToken = JwtProvider.createAccessToken(user);
         String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
 
-        return  ResponseEntity.ok(new jwtDto("Bearer", accessToken, refreshToken));
+        return  ResponseEntity.ok(new JwtDto("Bearer", accessToken, refreshToken));
     }
 }

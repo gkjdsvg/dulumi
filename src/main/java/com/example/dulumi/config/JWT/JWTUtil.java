@@ -1,20 +1,15 @@
 package com.example.dulumi.config.JWT;
 
-import com.example.dulumi.DTO.AddUserRequest;
-import com.example.dulumi.DTO.jwtDto;
-import com.example.dulumi.Repository.UserRepository;
-import com.nimbusds.jwt.JWT;
+import com.example.dulumi.DTO.JwtDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static com.nimbusds.oauth2.sdk.RefreshTokenGrant.GRANT_TYPE;
@@ -33,7 +28,7 @@ public class JWTUtil {
     }
 
     // Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
-    public jwtDto generateToken(Long userId) {
+    public JwtDto generateToken(Long userId) {
         // 권한 가져오기
         long now = (new Date()).getTime();
 
@@ -53,7 +48,7 @@ public class JWTUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        return jwtDto.builder()
+        return JwtDto.builder()
                 .grantType(GRANT_TYPE.getValue())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

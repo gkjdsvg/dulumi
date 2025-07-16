@@ -22,11 +22,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtProvider {
     private final Key key;
     private static final Logger log = LoggerFactory.getLogger(JwtProvider.class);
+    private static final long ACCESS_TOKEN_VALID_TIME = 1000 * 60 * 60L;
 
     // application.yml에서 secret 값 가져와서 key에 저장
     public JwtProvider(@Value("${jwt.secret}") String secretKey) {
@@ -39,19 +42,23 @@ public class JwtProvider {
         // Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null) {
+        if (claims.get("role") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
+        String role = claims.get("role", String.class);
+
         // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .toList();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+        List<GrantedAuthority> authorities = List.of(authority);
+//        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("role").toString().split(","))
+//                .map(SimpleGrantedAuthority::new)
+//                .toList();
 
         // UserDetails 객체를 만들어서 Authentication return
         // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
     }
 
     // 토큰 정보를 검증하는 메서드
@@ -88,7 +95,7 @@ public class JwtProvider {
         }
     }
 
-    public String resolveToken(HttpServletRequest req) {
+    public static String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
@@ -101,8 +108,9 @@ public class JwtProvider {
                 .withSubject(user.getUsername())
                 .withClaim("id", user.getId())
                 .withClaim("username", user.getUsername())
+                .withClaim("role", user.getRole().name())
+                .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME))
                 .sign(Algorithm.HMAC256(JwtProperties.SECRET));
-
     }
 
     public static String createRefreshToken(com.example.dulumi.domain.User user, String AccessToken) {
@@ -110,6 +118,16 @@ public class JwtProvider {
                 .withSubject(user.getUsername())
                 .withClaim("AccessToken", AccessToken)
                 .withClaim("username", user.getUsername())
+                .withClaim("role", user.getRole().name())
                 .sign(Algorithm.HMAC256(JwtProperties.SECRET));
+    }
+
+
+    public String getUsername(String token) {
+        return JWT.require(Algorithm.HMAC512(JwtProperties.SECRET))
+                .build()
+                .verify(token)
+                .getClaim("username")
+                .asString();
     }
 }
