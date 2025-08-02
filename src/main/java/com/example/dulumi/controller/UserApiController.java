@@ -10,11 +10,13 @@ import com.example.dulumi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.SecretKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +24,11 @@ import java.util.Map;
 @ResponseBody
 public class UserApiController {
     private final UserService userService;
-    private final JWTUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
-    public UserApiController(UserService userService, JWTUtil jwtUtil) {
+    public UserApiController(UserService userService, JWTUtil jwtUtil, JwtProvider jwtProvider) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
+        this.jwtProvider = jwtProvider;
 
     }
 
@@ -53,8 +55,8 @@ public class UserApiController {
     @PostMapping("/login-api")
     public ResponseEntity<Map<String, String>> loginForm(@RequestBody AddUserRequest addUserRequest) {
         User user = userService.login(addUserRequest);
-        String accessToken = JwtProvider.createAccessToken(user);
-        String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
+        String accessToken = jwtProvider.createAccessToken(user);
+        String refreshToken = jwtProvider.createRefreshToken(user);
 
         System.out.println("== 디버깅용 JWT ==");
         System.out.println("Access Token = " + accessToken);
@@ -71,9 +73,14 @@ public class UserApiController {
     public ResponseEntity<JwtDto> signup_api(@RequestBody AddUserRequest request) {
         User user = userService.signup(request);
 
-        String accessToken = JwtProvider.createAccessToken(user);
-        String refreshToken = JwtProvider.createRefreshToken(user, accessToken);
+        String accessToken = jwtProvider.createAccessToken(user);
+        String refreshToken = jwtProvider.createRefreshToken(user);
 
         return  ResponseEntity.ok(new JwtDto("Bearer", accessToken, refreshToken));
+    }
+
+    @GetMapping("/user/info")
+    public ResponseEntity<String> getUserInfo(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok("hello" + user.getUsername());
     }
 }
