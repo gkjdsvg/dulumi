@@ -1,6 +1,6 @@
 package com.example.dulumi.Repository;
-
 import com.example.dulumi.domain.Notification;
+import com.example.dulumi.sse.TestNotification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

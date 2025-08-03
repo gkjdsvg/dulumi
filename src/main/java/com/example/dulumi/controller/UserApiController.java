@@ -52,8 +52,10 @@ public class UserApiController {
         return "redirect:/loginForm";
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login-api")
     public ResponseEntity<Map<String, String>> loginForm(@RequestBody AddUserRequest addUserRequest) {
+        System.out.println("✅ 로그인 요청 들어옴 : " + addUserRequest.getEmail());
         User user = userService.login(addUserRequest);
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);

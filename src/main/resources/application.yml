@@ -49,9 +49,9 @@ spring:
       uris: http://localhost:9200
       username: elastic
 
-jwt:
-  secret: HZwx7wgZ071R2n0sQB1dzdSvSwaXUjQFVfmyodvd
-  access_token_expire_time: 1800000
+  jwt:
+    secret: HZwx7wgZ071R2n0sQB1dzdSvSwaXUjQFVfmyodvd
+    access_token_expire_time: 1800000
 
 
 
