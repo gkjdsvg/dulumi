@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api","/login-api").permitAll()
+                        .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api","/login-api", "/api/dev-token", "/api/notification/subscribe").permitAll()
                         .requestMatchers("/user/**","/api/public/**").authenticated()
                         .requestMatchers("/api/notification/subscribe").authenticated()
                         .anyRequest().authenticated()

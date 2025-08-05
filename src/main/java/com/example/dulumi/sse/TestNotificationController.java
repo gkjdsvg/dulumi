@@ -1,10 +1,8 @@
 package com.example.dulumi.sse;
 
 import com.example.dulumi.domain.PrincipalDetails;
-import com.example.dulumi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.hibernate.annotations.Parameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-public class NotificationController {
+public class TestNotificationController {
     private final TestNotificationService notificationService;
 
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

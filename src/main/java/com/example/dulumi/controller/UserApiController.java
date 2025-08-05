@@ -6,6 +6,7 @@ import com.example.dulumi.DTO.JwtDto;
 import com.example.dulumi.config.JWT.JWTUtil;
 import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.domain.User;
+import com.example.dulumi.service.JwtService;
 import com.example.dulumi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,11 +26,12 @@ import java.util.Map;
 public class UserApiController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
 
-    public UserApiController(UserService userService, JWTUtil jwtUtil, JwtProvider jwtProvider) {
+    public UserApiController(UserService userService, JWTUtil jwtUtil, JwtProvider jwtProvider, JwtService jwtService) {
         this.userService = userService;
         this.jwtProvider = jwtProvider;
-
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/loginForm")
@@ -59,6 +61,9 @@ public class UserApiController {
         User user = userService.login(addUserRequest);
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);
+
+        //저장
+        jwtService.saveOrUpdateToken(user, accessToken, refreshToken);
 
         System.out.println("== 디버깅용 JWT ==");
         System.out.println("Access Token = " + accessToken);

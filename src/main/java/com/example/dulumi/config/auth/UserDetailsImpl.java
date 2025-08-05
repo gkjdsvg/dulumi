@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 @Getter
 @ToString
@@ -20,55 +21,44 @@ public class UserDetailsImpl implements UserDetails {
     private String role;
     private User user;
 
-    @Builder
-    public UserDetailsImpl(String email, String password, String provider, String username, String role, User user) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.provider = provider;
-        this.role = role;
+
+    public UserDetailsImpl(User user) {
         this.user = user;
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return getRole().toString();
-            }
-        });
-        return authorities;
+        return Collections.singleton(() -> "ROLE_" + user.getRole()); // 권한
     }
 
     @Override
-    public String getUsername() {
+    public String getUsername() { //로그인 아이디
         return username;
     }
 
     @Override
-    public String getPassword() {
+    public String getPassword() { //로그인 비번
         return password;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
+    public boolean isAccountNonExpired() { //계정 만료 여부
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
+    public boolean isAccountNonLocked() { //계정 잠김 여부
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
+    public boolean isCredentialsNonExpired() {//비밀 번호 만료 여부
         return true;
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled() { //계정 활성화 여부
         return true;
     }
 }

@@ -36,16 +36,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader("Authorization");
+        System.out.println("👉🏻 Authorization 헤더 : " + header);
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = JwtProvider.resolveToken(request);
-            System.out.println("💡 추출된 토큰: " + token);
+            if (token == null) {
+                token = request.getParameter("token");
+            }
 
             try {
                 if (token != null && jwtProvider.validateToken(token)) {
                     Authentication auth = jwtProvider.getAuthentication(token);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                    System.out.println("✅ SecurityContext 등록 완료 : " + auth);
+                    if (auth == null) {
+                        System.out.println("❌ 인증 객체 생성 실패");
+                    } else {
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                        System.out.println("✅ SecurityContext 등록 완료 : " + auth);
+                    }
                 }
             } catch (TokenExpiredException e) {
                 // 여기서 refresh_token으로 복구 시도 (옵션)
