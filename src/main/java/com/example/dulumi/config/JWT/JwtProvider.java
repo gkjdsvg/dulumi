@@ -138,6 +138,7 @@ public class JwtProvider {
         System.out.println("🔒 createToken secretKey : " + key);
         return Jwts.builder()
                 .subject(user.getUsername())
+                .claim("userId", user.getId())
                 .claim("username", user.getUsername())
                 .claim("role", user.getRole().name())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME))

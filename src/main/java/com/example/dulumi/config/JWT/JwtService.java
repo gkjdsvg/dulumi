@@ -1,7 +1,6 @@
-package com.example.dulumi.service;
+package com.example.dulumi.config.JWT;
 
 import com.example.dulumi.Repository.JwtRepository;
-import com.example.dulumi.domain.Jwt;
 import com.example.dulumi.domain.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

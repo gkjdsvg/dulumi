@@ -4,7 +4,7 @@ import com.example.dulumi.DTO.MsgResponseDto;
 import com.example.dulumi.Repository.JwtRepository;
 import com.example.dulumi.Repository.UserRepository;
 import com.example.dulumi.config.JWT.JwtProvider;
-import com.example.dulumi.domain.Jwt;
+import com.example.dulumi.config.JWT.Jwt;
 import com.example.dulumi.domain.User;
 import com.example.dulumi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class NotificationController {
 //        return notificationService.subscribe(userId);
 //    }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "false")
     @GetMapping("/api/notification/subscribe")
     public SseEmitter subscribe(@RequestParam String token) {
         System.out.println("🔥 subscribe 진입");
@@ -59,6 +59,7 @@ public class NotificationController {
         return notificationService.deleteNotification(id);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/notification/test")
     public ResponseEntity<String> sendTestNotification() {
         notificationService.notifyNewNotice();

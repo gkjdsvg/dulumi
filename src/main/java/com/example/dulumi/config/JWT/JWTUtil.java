@@ -1,6 +1,5 @@
 package com.example.dulumi.config.JWT;
 
-import com.example.dulumi.DTO.JwtDto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;

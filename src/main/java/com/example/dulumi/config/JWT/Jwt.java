@@ -1,5 +1,6 @@
-package com.example.dulumi.domain;
+package com.example.dulumi.config.JWT;
 
+import com.example.dulumi.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

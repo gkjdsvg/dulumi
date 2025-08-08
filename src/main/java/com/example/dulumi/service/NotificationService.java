@@ -25,7 +25,7 @@ import static com.example.dulumi.controller.NotificationController.sseEmitters;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private static Map<Long, Integer> notificationCounts = new HashMap<>();
+    private static final Map<Long, Integer> notificationCounts = new HashMap<>();
 
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);

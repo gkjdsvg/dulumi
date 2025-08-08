@@ -2,11 +2,11 @@ package com.example.dulumi.controller;
 
 import com.auth0.jwt.JWT;
 import com.example.dulumi.DTO.AddUserRequest;
-import com.example.dulumi.DTO.JwtDto;
+import com.example.dulumi.config.JWT.JwtDto;
 import com.example.dulumi.config.JWT.JWTUtil;
 import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.domain.User;
-import com.example.dulumi.service.JwtService;
+import com.example.dulumi.config.JWT.JwtService;
 import com.example.dulumi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.SecretKey;
 import java.util.HashMap;
 import java.util.Map;
 

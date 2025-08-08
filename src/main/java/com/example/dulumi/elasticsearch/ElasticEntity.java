@@ -18,7 +18,7 @@ import java.time.*;
 @Setter
 @ToString
 @Builder
-@Document(indexName = "my_nori_index")
+@Document(indexName = "my_nori_index_v2")
 @JsonIgnoreProperties(ignoreUnknown = true)
 //@Mapping(mappingPath = "elastic-mapping.json")
 //@Setting(settingPath = "elastic-token.json")

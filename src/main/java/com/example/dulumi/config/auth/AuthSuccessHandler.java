@@ -1,17 +1,17 @@
 package com.example.dulumi.config.auth;
 
-import com.example.dulumi.DTO.JwtDto;
 import com.example.dulumi.DTO.LoginResponse;
 import com.example.dulumi.DTO.ResponseDTO;
 import com.example.dulumi.config.JWT.JwtProvider;
 import com.example.dulumi.domain.PrincipalDetails;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -23,6 +23,7 @@ import java.io.IOException;
 @Component
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -43,8 +44,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler im
                 loginResponse
         );
 
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonResponse = mapper.writeValueAsString(responseDto);
+        String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -49,8 +50,9 @@ public class SecurityConfig {
      }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsSource) throws Exception {
+        http.cors(c -> c.configurationSource(corsSource))
+                .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout((logout) -> logout
@@ -60,7 +62,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api","/login-api", "/api/dev-token", "/api/notification/subscribe").permitAll()
+                        .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api",
+                                "/login-api", "/api/dev-token", "/api/notification/subscribe", "/api/notice", "/api/notice/search").permitAll()
                         .requestMatchers("/user/**","/api/public/**").authenticated()
                         .requestMatchers("/api/notification/subscribe").authenticated()
                         .anyRequest().authenticated()

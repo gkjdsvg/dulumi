@@ -1,10 +1,9 @@
-package com.example.dulumi.DTO;
+package com.example.dulumi.config.JWT;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.HttpStatus;
 
 @Getter
 @Setter
