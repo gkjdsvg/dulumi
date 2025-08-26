@@ -36,12 +36,14 @@ public class TitleSearchService {
 
     public List<ElasticEntity> search(String keyword) {
         System.out.println("🔥 search() 진입");
+        //elasticSearch 쿼리 객체 생성
         Query query = Query.of(q -> q
                 .match(m -> m
                         .field("content")
                         .query(keyword))
         );
 
+        //검색 요청 생성 (index 지정)
         SearchRequest request = SearchRequest.of(s -> s
                 .index("my_nori_index_v2")
                 .query(query)
@@ -58,9 +60,10 @@ public class TitleSearchService {
             System.out.println("==== ElasticEntity 매핑 데이터 ====");
             response.hits().hits().forEach(hit -> System.out.println(hit.source()));
 
+            //결과 리스트 반환
             return response.hits().hits().stream()
                     .peek(hit -> System.out.println("📦 source 확인: " + hit.source()))
-                    .map(Hit::source)
+                    .map(Hit::source) //hit 객체 -> ElasticEntity 추출
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("엘라스틱 검색 중 오류 발생", e);
@@ -89,10 +92,10 @@ public class TitleSearchService {
 //        return results;
 //    }
 
-    public void saveToElastic(String content, String author) {
+    public void saveToElastic(String content, String author) { //디스코드에 공지 올라오면 저장하는 거
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSX");
         ElasticEntity elastic = new  ElasticEntity();
-        elastic.setId(UUID.randomUUID().toString());
+        elastic.setId(UUID.randomUUID().toString()); //랜덤 지정
         elastic.setContent(content);
         elastic.setCreatedDate(LocalDate.now());
         elastic.setAuthor(author);

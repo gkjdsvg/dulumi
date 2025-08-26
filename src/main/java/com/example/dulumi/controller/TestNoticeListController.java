@@ -21,5 +21,4 @@ public class TestNoticeListController {
     public List<Notice> getNoticeList() {
         return noticeService.getAllNotices();
     }
-
 }

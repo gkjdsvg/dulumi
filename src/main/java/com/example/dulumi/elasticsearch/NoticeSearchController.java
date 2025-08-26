@@ -13,9 +13,9 @@ public class NoticeSearchController {
     private final  TitleSearchService titleSearchService;
 
     @GetMapping
-    public ResponseEntity<List<ElasticEntity>> search(@RequestParam("keyword") String keyword) {
-        List<ElasticEntity> results = titleSearchService.search(keyword);
-        return ResponseEntity.ok().body(results);
+    public ResponseEntity<List<ElasticEntity>> search(@RequestParam("keyword") String keyword) { //keyword를 받아서
+        List<ElasticEntity> results = titleSearchService.search(keyword); //검색한 걸 list에 저장하는 거네
+        return ResponseEntity.ok().body(results); //그걸 반환해서 보여주는 거고
     }
 
     @PostMapping

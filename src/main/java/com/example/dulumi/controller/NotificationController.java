@@ -35,15 +35,15 @@ public class NotificationController {
 
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "false")
     @GetMapping("/api/notification/subscribe")
-    public SseEmitter subscribe(@RequestParam String token) {
+    public SseEmitter subscribe(@RequestParam String token) {//변수에 데이터를 저장하기 위해 @RequestParam으로 받음
         System.out.println("🔥 subscribe 진입");
         System.out.println("🔥 token = " + token);
 
-        Long userId = jwtProvider.getUserIdFromToken(token); //이 줄에서 예외 나면 401
-        return notificationService.subscribe(userId);
+        Long userId = jwtProvider.getUserIdFromToken(token); //이 줄에서 예외 나면 401, 토큰에서 userId 가져옴
+        return notificationService.subscribe(userId); //sse 구독
     }
 
-    @GetMapping("api/dev-token")
+    @PostMapping("api/dev-token")
     public ResponseEntity<String> getDevToken(@RequestParam String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));

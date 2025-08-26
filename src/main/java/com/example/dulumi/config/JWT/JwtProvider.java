@@ -172,13 +172,13 @@ public class JwtProvider {
     }
 
 
-    public Long getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {//userId 가져오는 함수
         Claims claims = Jwts.parser()
                 .verifyWith(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseSignedClaims(token) // 토큰 파싱
+                .getPayload(); //페이로드를 가져옴
 
-        return claims.get("userId", Long.class);
+        return claims.get("userId", Long.class); //userId만 가져옴
     }
 }

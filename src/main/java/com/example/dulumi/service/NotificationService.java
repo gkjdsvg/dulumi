@@ -28,21 +28,23 @@ public class NotificationService {
     private static final Map<Long, Integer> notificationCounts = new HashMap<>();
 
     public SseEmitter subscribe(Long userId) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        //SseEmitter를 이용해 단방향 실시간 스트리밍 구현
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE); //끊기지 않게 타임 아웃을 최대값으로 설정
 
-        try {
+        try { //클라이언트가 연결 되면 첫 번째 이벤트 ("content") 전송
             emitter.send(SseEmitter.event().name("connect"));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        sseEmitters.put(userId, emitter);
+        sseEmitters.put(userId, emitter); //서버 내부 Map<long, SseEmitter>에 사용자별 emitter 저장
 
+        //연결 종료, 타임 아웃, 에러 발생 시 emitter 제거
         emitter.onCompletion(() -> sseEmitters.remove(userId));
         emitter.onTimeout(() -> sseEmitters.remove(userId));
         emitter.onError((e) -> sseEmitters.remove(userId));
 
-        return emitter;
+        return emitter; //생성한 SseEmitter 반환 -> 클라이언트에서 EventSource로 받을 수 있음
     }
 
     public void notifyNewNotice() {

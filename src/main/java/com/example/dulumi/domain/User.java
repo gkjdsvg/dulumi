@@ -28,18 +28,25 @@ public class User {
 
     private String provider; //어떤 OAuth인지(google, naver 등)
 
-    private String provider_id; // 해당 OAuth 의 key(id)
+    @Column(name = "provider_id")
+    private String providerId; // 해당 OAuth 의 key(id)
 
     private LocalDateTime create_date;
 
     @Builder
-    public User(String username, String password, String email, Role role, String provider, String provider_id, LocalDateTime create_date) {
+    public User(String username, String password, String email, Role role, String provider, String providerId, LocalDateTime create_date) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
         this.provider = provider;
-        this.provider_id = provider_id;
+        this.providerId = providerId;
         this.create_date = create_date;
+    }
+
+    public User(String email, String provider, String providerId) {
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 }
