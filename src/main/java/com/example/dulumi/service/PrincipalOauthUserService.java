@@ -101,7 +101,7 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
                     .email(email)
                     .role(role)
                     .provider(provider)
-                    .provider_id(providerId)
+                    .providerId(providerId)
                     .create_date(createTime)
                     .build();
 

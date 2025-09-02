@@ -43,17 +43,6 @@ public class NotificationController {
         return notificationService.subscribe(userId); //sse 구독
     }
 
-    @PostMapping("api/dev-token")
-    public ResponseEntity<String> getDevToken(@RequestParam String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-
-        Jwt jwt = jwtRepository.findByUser(user)
-                .orElseThrow(() -> new IllegalArgumentException("토큰 없음"));
-
-        return ResponseEntity.ok(jwt.getAccessToken());
-    }
-
     @DeleteMapping("/api/notification/delete/{id}")
     public MsgResponseDto deleteNotification(@PathVariable Long id) throws IOException {
         return notificationService.deleteNotification(id);

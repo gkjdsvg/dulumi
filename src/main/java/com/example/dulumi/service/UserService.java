@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
                 .role(Role.USER) // 기본 역할
                 .create_date(LocalDateTime.now())
                 .provider("email")
-                .provider_id(request.getProvider_id())
+                .providerId(request.getProvider_id())
                 .build();
 
         return userRepository.save(user);

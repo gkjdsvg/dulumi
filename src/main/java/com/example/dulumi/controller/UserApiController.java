@@ -2,15 +2,17 @@ package com.example.dulumi.controller;
 
 import com.auth0.jwt.JWT;
 import com.example.dulumi.DTO.AddUserRequest;
-import com.example.dulumi.config.JWT.JwtDto;
-import com.example.dulumi.config.JWT.JWTUtil;
-import com.example.dulumi.config.JWT.JwtProvider;
+import com.example.dulumi.Repository.JwtRepository;
+import com.example.dulumi.Repository.UserRepository;
+import com.example.dulumi.config.JWT.*;
+import com.example.dulumi.domain.PrincipalDetails;
 import com.example.dulumi.domain.User;
-import com.example.dulumi.config.JWT.JwtService;
 import com.example.dulumi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -26,11 +28,15 @@ public class UserApiController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final JwtRepository jwtRepository;
 
-    public UserApiController(UserService userService, JWTUtil jwtUtil, JwtProvider jwtProvider, JwtService jwtService) {
+    public UserApiController(UserService userService, JWTUtil jwtUtil, JwtProvider jwtProvider, JwtService jwtService, UserRepository userRepository, JwtRepository jwtRepository) {
         this.userService = userService;
         this.jwtProvider = jwtProvider;
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.jwtRepository = jwtRepository;
     }
 
     @PostMapping("/loginForm")
@@ -85,8 +91,23 @@ public class UserApiController {
         return  ResponseEntity.ok(new JwtDto("Bearer", accessToken, refreshToken));
     }
 
-    @GetMapping("/user/info")
-    public ResponseEntity<String> getUserInfo(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok("hello" + user.getUsername());
+    @PostMapping("api/dev-token")
+    public ResponseEntity<String> getDevToken(@RequestParam String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
+        Jwt jwt = jwtRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("토큰 없음"));
+
+        return ResponseEntity.ok(jwt.getAccessToken());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "unauthenticated"));
+        }
+        return ResponseEntity.ok(Map.of("username", authentication.getName()));
     }
 }

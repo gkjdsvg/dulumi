@@ -63,9 +63,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/loginForm", "/oauth2/**", "/login/oauth2/**","/joinForm","/signup-api",
-                                "/login-api", "/api/dev-token", "/api/notification/subscribe", "/api/notice", "/api/notice/search").permitAll()
+                                "/login-api", "/api/dev-token", "/api/notification/subscribe", "/api/notice/**", "/api/notice/search", "/kakao/login","/me").permitAll()
                         .requestMatchers("/user/**","/api/public/**").authenticated()
-                        .requestMatchers("/api/notification/subscribe").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -73,13 +72,13 @@ public class SecurityConfig {
                         fromLogin
                                 .loginPage("/loginForm")
                                 .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/main")
+                                .defaultSuccessUrl("http://localhost:3000")
                 )
                 .oauth2Login(oauth2 ->
                         oauth2
                                 .loginPage("/loginForm")
                                 .successHandler(authSuccessHandler)
-                                .defaultSuccessUrl("/main")
+                                .defaultSuccessUrl("http://localhost:3000", true)
                                 .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                         .userService(principalOauthUserService)//구글 로그인이 완료된(구글회원) 뒤의 후처리가 필요함 . Tip.코드x, (엑세스 토큰+사용자 프로필 정보를 받아옴)
                                 )
